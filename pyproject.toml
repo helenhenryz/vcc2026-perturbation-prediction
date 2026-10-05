@@ -1,0 +1,48 @@
+[project]
+name = "vccpipe"
+version = "1.0.0"
+description = "Our Virtual Cell Challenge 2026 pipeline: CRISPRi knockdowns predicted in cell lines nobody has perturbed"
+readme = "README.md"
+license = "Apache-2.0"
+license-files = ["LICENSE"]
+authors = [{ name = "Helen Henry" }, { name = "Nyle Hussain" }, { name = "Kevin Henry" }]
+requires-python = "==3.12.*"
+# Exact versions: the submitted file is rebuilt byte for byte, so the numerical libraries are pinned.
+dependencies = [
+    "numpy==2.5.3",
+    "scipy==1.18.1",
+    "pandas==3.0.6",
+    "anndata==0.13.4",
+    "h5py==3.16.0",
+    "polars==1.44.2",
+    "threadpoolctl==3.7.0",
+    "matplotlib==3.11.2",
+]
+
+[project.optional-dependencies]
+# Running the notebook: the official scorer (its GPU engine, gpudge, needs a CUDA device), the submission CLI, UMAP.
+notebook = ["cell-eval2[gpudge]==0.16.0", "vcc-cli==0.3.0", "scanpy==1.12.4", "ipykernel", "jupyterlab"]
+# The appendix's rebuild of the reference tables (reads R's .rds files).
+rebuild = ["rdata==1.1.0"]
+dev = ["pytest==9.1.1", "ruff==0.16.9"]
+
+[build-system]
+requires = ["hatchling>=1.27"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["vccpipe"]
+
+[tool.ruff]
+line-length = 120
+target-version = "py312"
+
+[tool.ruff.lint]
+extend-select = ["I"]  # ruff's default rules, plus import sorting
+
+[tool.ruff.lint.isort]
+known-first-party = ["vccpipe"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["."]

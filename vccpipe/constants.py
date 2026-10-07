@@ -1,0 +1,137 @@
+"""Numbers fitted once on the training screens: the per-cell amplitude table and the neighbour prior."""
+
+import numpy as np
+
+__all__ = ["CELL_E_EDGES", "CELL_L_EDGES", "CELL_TABLE", "CIS_PRIOR", "E_ROW_EXTRA", "E_TRAIN_EXTRA"]
+
+# ---- constants fitted once on the training screens -------------------------------------------------------
+# Used in: sections 11 and 13.
+# The per-cell amplitude table (7 |L| bins x 4 control-CPM bins), fitted on six held-out training lines:
+# per cell, the weighted median of (real log2FC / predicted direction) over the genes the real test called.
+# Fitted once, outside this repository; shipped as constants.
+CELL_L_EDGES = np.array([0.01, 0.02, 0.05, 0.1, 0.2, 0.4])
+CELL_E_EDGES = np.array([1.0, 10.0, 100.0])
+# fmt: off
+CELL_TABLE = [  # rows: |L| bins; columns: control-CPM bins
+    [1.0, 20.0, 20.0, 11.786928272775175],
+    [1.0, 20.0, 11.808370771831175, 7.124697620533948],
+    [1.0, 10.820853152590717, 5.39093223026917, 3.7712569381330794],
+    [1.0, 6.043466036658389, 3.4741368998686024, 2.4556761758537946],
+    [1.0, 3.8088222043505593, 2.4981801142175337, 1.7924832091532708],
+    [1.0, 2.598920037632997, 1.9302186873839875, 1.4026788643390584],
+    [1.0, 1.7058085635198665, 1.6099621094895245, 1.2053679968432849],
+]
+
+# The neighbour prior: log2 change by TSS distance bin (rows: 0-1, 1-2, 2-5, 5-10, 10-20, 20-50, 50-100,
+# 100-200 kb) x orientation (divergent, convergent, same strand upstream, same strand downstream), as a share of the
+# target's own knockdown depth, and a multiplier by the neighbour's control CPM (<1, 1-5, 5-20, 20-100, >=100).
+# Fitted once, outside this repository, on the Flex screens (h1, CD4 T, K562 on Flex); shipped as constants.
+CIS_PRIOR = {
+    "mode": "ratio",
+    "table": [  # rows: distance bins; columns: orientation classes
+        [0.4986432267724954, 0.49455959015061685, 0.21943429372211853, 0.2734562036326511],
+        [0.37067727674346507, 0.3923262728169304, 0.3525419596985846, 0.3525419596985846],
+        [0.16600796756769842, 0.3056041628178113, 0.24551085820745525, 0.11365872804578254],
+        [0.058438851935259134, 0.19761092302232897, 0.21161875592546422, 0.07255986522872707],
+        [0.06309884047395344, 0.08584399735009803, 0.05281540983451761, 0.032158746080915734],
+        [0.02930390047470001, 0.03455046958135296, 0.03610004312111754, 0.023158067769204583],
+        [0.0, 0.0, 0.0, 0.0],
+        [0.0, 0.0, 0.0, 0.0],
+    ],
+    "cpm_mult": [0.0, 1.1646732893296676, 1.1646732893296676, 1.073958007759264, 0.7268793427060624],
+}
+# fmt: on
+
+# E's training keys beyond the panel: the H1 training line's panel (145 knockdowns, trained on), and the union of
+# the K562, RPE1, HepG2 and Jurkat panels (853, rows only, never trained on); the appendix rebuilds both from the
+# training lines and checks them.
+# fmt: off
+E_TRAIN_EXTRA = [
+    'ACAT2', 'ACVR1B', 'AKT2', 'ANTXR1', 'ARID1A', 'ATM', 'ATP1B1', 'ATP6V0B', 'BIRC2', 'C1QBP', 'CALM3', 'CAMSAP2',
+    'CASP2', 'CASP3', 'CAST', 'CDCA2', 'CENPO', 'CHMP3', 'CLDN6', 'CLDN7', 'CREG1', 'DAXX', 'DHCR24', 'DHX36',
+    'DLG5', 'DNMT1', 'DZIP3', 'EID2', 'EIF4B', 'EPB41L2', 'EPHB4', 'ETV4', 'EWSR1', 'FDPS', 'FOXH1', 'GSK3B',
+    'HAT1', 'HIRA', 'HMGB2', 'HMGN1', 'HSBP1', 'IDE', 'IGF2R', 'IKBKG', 'INSIG1', 'IRF3', 'KAT2A', 'KDM1A', 'KDM2B',
+    'KDR', 'KIF1B', 'KIF20A', 'KLF10', 'LAD1', 'LRPPRC', 'LZTR1', 'MAP1B', 'MAP3K7', 'MAPKAPK2', 'MAST2', 'MAU2',
+    'MBTPS1', 'MED1', 'MED12', 'MED13', 'MED13L', 'MED24', 'METTL14', 'METTL17', 'METTL3', 'MKI67', 'MTA1', 'NCK2',
+    'NDUFB4', 'NDUFB6', 'NISCH', 'NIT1', 'NRAS', 'NREP', 'OXCT1', 'PAGR1', 'PBX1', 'PHF10', 'PHF14', 'PLCB3',
+    'PMEL', 'PMS1', 'POLB', 'PRCP', 'PRDM14', 'PRR12', 'PTPN1', 'RAB3B', 'RAF1', 'RNF2', 'RRM1', 'SAFB', 'SALL4',
+    'SDC1', 'SEC62', 'SHPRH', 'SIN3B', 'SIX4', 'SLC25A3', 'SLC39A6', 'SMAGP', 'SMARCA4', 'SMARCA5', 'SNCA', 'SOX2',
+    'SRC', 'SSBP1', 'STAG2', 'STAT1', 'STAT6', 'STX4', 'SUPT4H1', 'SV2A', 'TADA1', 'TAF13', 'TARBP2', 'TAZ', 'TCF3',
+    'TET1', 'TFAM', 'TGFBR2', 'TMBIM6', 'TMSB10', 'TMSB4X', 'TRAM2', 'TRAPPC6A', 'TSC22D4', 'TWF2', 'TXNDC9',
+    'UBE3C', 'UQCRQ', 'USP22', 'WFS1', 'WSB2', 'XRCC4', 'ZNF286A', 'ZNF426', 'ZNF562', 'ZNF593', 'ZNF714'
+]
+E_ROW_EXTRA = [
+    'AASDHPPT', 'AATF', 'ABCF1', 'ABCG1', 'ABHD17A', 'ABT1', 'ACIN1', 'ACOT12', 'ACTB', 'ACTR1A', 'ACTR1B', 'ACTR5',
+    'ACTR6', 'ACTR8', 'ADAM10', 'ADAT3', 'ADRM1', 'ADSL', 'AHCY', 'ALG14', 'ALG1L', 'ANAPC1', 'ANAPC13', 'ANAPC15',
+    'ANKLE2', 'ANKRD11', 'AP2M1', 'AQP7', 'ARGLU1', 'ARL4D', 'ARMC7', 'ARPC3', 'ARPC4', 'ASCC3', 'ASF1B', 'ATF5',
+    'ATP11B', 'ATP1A1', 'ATP2A2', 'ATP5ME', 'ATP6AP1', 'ATP6AP2', 'ATP6V0D1', 'ATP6V1D', 'ATP6V1E1', 'ATP6V1G1',
+    'ATR', 'AURKA', 'AURKAIP1', 'BAP1', 'BARD1', 'BCAR1', 'BCL2L1', 'BCS1L', 'BMS1', 'BOP1', 'BPTF', 'BRCA2',
+    'BRF1', 'BRF2', 'BRIX1', 'BRK1', 'BTF3', 'BTF3L4', 'BUB1', 'BUB1B', 'BYSL', 'C12orf45', 'C14orf178', 'C16orf86',
+    'C19orf53', 'C6orf15', 'C7orf26', 'C7orf50', 'CA5A', 'CABIN1', 'CADM4', 'CBLN1', 'CBX1', 'CCDC130', 'CCDC144A',
+    'CCDC144NL', 'CCDC59', 'CCDC6', 'CCDC78', 'CCNC', 'CCT3', 'CCT7', 'CD8B', 'CDC16', 'CDC42', 'CDC45', 'CDC6',
+    'CDK1', 'CDK2', 'CDK9', 'CEBPZ', 'CENPA', 'CENPC', 'CENPT', 'CFDP1', 'CFL1', 'CHD4', 'CHMP5', 'CHMP6', 'CHMP7',
+    'CHTOP', 'CIAO1', 'CLASRP', 'CLOCK', 'CMPK1', 'CNIH4', 'CNN2', 'COG1', 'COG6', 'COMTD1', 'COPA', 'COPB2',
+    'COPG1', 'COPS4', 'COPS6', 'COPS8', 'COPZ1', 'COTL1', 'COX11', 'COX15', 'CPAMD8', 'CPEB1', 'CPSF3', 'CSE1L',
+    'CSH2', 'CSNK2B', 'CSTF1', 'CT45A5', 'CYC1', 'CYCS', 'DAP3', 'DBF4', 'DBR1', 'DCAF6', 'DCTN1', 'DCTN3', 'DDN',
+    'DDX17', 'DDX19A', 'DDX19B', 'DDX23', 'DDX27', 'DDX46', 'DDX47', 'DDX5', 'DDX51', 'DDX52', 'DDX55', 'DDX6',
+    'DHX30', 'DHX33', 'DHX36', 'DHX37', 'DHX8', 'DLD', 'DMRTA2', 'DNAAF3', 'DNAJA1', 'DNAJA3', 'DNAJC8', 'DNLZ',
+    'DNM1', 'DNM1L', 'DNMT1', 'DOLK', 'DONSON', 'DPH1', 'DPH6', 'DPM2', 'DRAP1', 'DRG1', 'DSTYK', 'DTYMK',
+    'DYNC1I2', 'DYNLRB1', 'EFR3A', 'EFTUD2', 'EHMT2', 'EIF2B1', 'EIF2B2', 'EIF2B4', 'EIF2B5', 'EIF3B', 'EIF3CL',
+    'EIF3H', 'EIF3L', 'EIF3M', 'EIF4A3', 'EIF4B', 'EIF4G2', 'ELL', 'ELOB', 'ELOVL1', 'ELP2', 'ELP3', 'ELP5', 'EMC3',
+    'EPS8L1', 'ERAL1', 'ERVW-1', 'ESF1', 'ESPN', 'EXOC1', 'EXOC4', 'EXOSC2', 'EXOSC4', 'EXOSC5', 'EXOSC8',
+    'FAM136A', 'FAM207A', 'FAM229A', 'FAM50A', 'FASTKD5', 'FBXL14', 'FBXO42', 'FBXW7', 'FCF1', 'FDXR', 'FNBP4',
+    'FNTA', 'FNTB', 'FOLR3', 'FOXD4', 'FXN', 'FYN', 'GAB2', 'GAPDH', 'GARS', 'GBF1', 'GCOM1', 'GEMIN5', 'GEMIN7',
+    'GET1', 'GFM1', 'GFOD2', 'GINS1', 'GNB1L', 'GNL2', 'GNL3', 'GOLT1B', 'GON4L', 'GPN3', 'GPS1', 'GRSF1', 'GRWD1',
+    'GTF2E2', 'GTF2F2', 'GTF2H2C', 'GTF2H4', 'GTF3C2', 'GTF3C4', 'GTF3C5', 'GTPBP4', 'GYG1', 'H2AFX', 'H2AFZ',
+    'HAMP', 'HAPLN2', 'HARS', 'HAUS3', 'HAUS8', 'HIRA', 'HIST1H2AE', 'HIST1H2BB', 'HIST1H2BL', 'HIST2H2BE', 'HJURP',
+    'HMGCS1', 'HMGN2', 'HMX3', 'HNRNPA1', 'HNRNPC', 'HNRNPL', 'HNRNPM', 'HOXA3', 'HS6ST1', 'HSCB', 'HSD17B10',
+    'HSD17B12', 'HSPA5', 'HSPA8', 'HSPA9', 'HSPE1', 'HUS1', 'IK', 'IMPDH2', 'INF2', 'ING3', 'INPPL1', 'INTS12',
+    'INTS13', 'INTS14', 'INTS2', 'INTS8', 'IPO7', 'IPO9', 'ISCU', 'IWS1', 'JAZF1', 'JMJD6', 'KDM1A', 'KDM6A',
+    'KEAP1', 'KIAA1143', 'KIF14', 'KLF7', 'KRT10', 'KRT17', 'KRTAP4-2', 'KRTAP4-7', 'KTI12', 'LAMTOR1', 'LAMTOR4',
+    'LARS', 'LCE1C', 'LCE1E', 'LDB1', 'LETM1', 'LIMS1', 'LIN54', 'LMO2', 'LRP5', 'LRPPRC', 'LRRC37B', 'LSM10',
+    'LSM11', 'LSM5', 'LST1', 'LTB4R2', 'LTBP3', 'LTV1', 'LZTR1', 'MAD2L1', 'MAGOH', 'MAT2A', 'MBNL1', 'MBTPS1',
+    'MBTPS2', 'MCL1', 'MCM2', 'MCM3', 'MCM6', 'MCM7', 'MCMBP', 'MED14', 'MED19', 'MED26', 'MED4', 'MED6', 'MED8',
+    'MED9', 'MEIS3', 'METTL23', 'METTL3', 'MEX3A', 'MFN2', 'MIOS', 'MIS18BP1', 'MKRN1', 'MLLT6', 'MMGT1', 'MMS19',
+    'MOB4', 'MOG', 'MON1A', 'MRGBP', 'MRPL1', 'MRPL14', 'MRPL16', 'MRPL19', 'MRPL20', 'MRPL24', 'MRPL27', 'MRPL3',
+    'MRPL34', 'MRPL35', 'MRPL36', 'MRPL38', 'MRPL39', 'MRPL4', 'MRPL41', 'MRPL53', 'MRPL54', 'MRPS11', 'MRPS17',
+    'MRPS23', 'MRPS25', 'MRPS30', 'MRPS5', 'MRPS7', 'MST1', 'MSTO1', 'MTBP', 'MTG2', 'MVK', 'MYBBP1A', 'MYBL2',
+    'MYO1H', 'MZF1', 'NAA20', 'NAA25', 'NAA35', 'NAF1', 'NAGLU', 'NANOG', 'NAPG', 'NARS', 'NASP', 'NBEAL1',
+    'NBPF12', 'NBPF15', 'NBPF3', 'NCBP2', 'NCKAP1', 'NCL', 'NDUFA4', 'NDUFAF3', 'NDUFB10', 'NDUFB3', 'NDUFB4',
+    'NDUFB6', 'NELFA', 'NELFB', 'NELFE', 'NFATC2IP', 'NFRKB', 'NFYB', 'NFYC', 'NIFK', 'NISCH', 'NKAPD1', 'NOC4L',
+    'NOL11', 'NOL8', 'NOLC1', 'NOM1', 'NOP14', 'NPB', 'NPEPPS', 'NPM1', 'NSRP1', 'NUBP2', 'NUDCD3', 'NUDT15',
+    'NUF2', 'NUP107', 'NUP133', 'NUP214', 'NUP85', 'NUP88', 'NUP98', 'NUTF2', 'NVL', 'NXF1', 'OGFOD1', 'OIP5',
+    'OR2T5', 'ORC1', 'ORC5', 'OTX1', 'OXA1L', 'PABPC4', 'PAF1', 'PALB2', 'PARN', 'PARS2', 'PC', 'PCBP2', 'PCF11',
+    'PCID2', 'PCNA', 'PCNX3', 'PDCD11', 'PDCD2', 'PDCD5', 'PDCD6IP', 'PDRG1', 'PELO', 'PGAM1', 'PGAM5', 'PGK1',
+    'PHAX', 'PHB', 'PHB2', 'PHF10', 'PI4KA', 'PITRM1', 'PKM', 'PKMYT1', 'PLA2G10', 'PLK4', 'PMF1', 'PMPCA', 'PMPCB',
+    'PNN', 'PNO1', 'PNPT1', 'POGLUT3', 'POLD2', 'POLG2', 'POLR1B', 'POLR1C', 'POLR1E', 'POLR2B', 'POLR2C', 'POLR2E',
+    'POLR2H', 'POLR2I', 'POLR2M', 'POLR3H', 'POLRMT', 'POP4', 'POP5', 'POU3F1', 'PPAN', 'PPARGC1B', 'PPIH', 'PPME1',
+    'PPP1CA', 'PPP1R2', 'PPP1R37', 'PPP2CA', 'PPP2CB', 'PPP2R1A', 'PPP4C', 'PPP6C', 'PRC1', 'PRELID3B', 'PRIM2',
+    'PRKCA', 'PRMT5', 'PRODH', 'PRORP', 'PRPF31', 'PRPF4', 'PRPF6', 'PSMA4', 'PSMB5', 'PSMB6', 'PSMC2', 'PSMC5',
+    'PSMD13', 'PSMD6', 'PSMG3', 'PSTK', 'PTEN', 'PTMA', 'PTPN1', 'PUM1', 'PXN', 'QARS', 'QRSL1', 'RAB4B', 'RABGGTA',
+    'RABGGTB', 'RAC3', 'RACGAP1', 'RAD21', 'RAD51', 'RAD51C', 'RARS', 'RBBP8', 'RBM10', 'RBM14-RBM4', 'RBM48',
+    'RBMX2', 'RCC1', 'RCL1', 'REV3L', 'RFT1', 'RGP1', 'RGPD6', 'RHOQ', 'RHPN1', 'RINT1', 'RNASEH2C', 'RNF123',
+    'RNF14', 'RNF20', 'RNF8', 'RPAP1', 'RPAP2', 'RPL10A', 'RPL12', 'RPL19', 'RPL23', 'RPL3', 'RPL32', 'RPL35A',
+    'RPL36', 'RPL37A', 'RPL41', 'RPL6', 'RPL7', 'RPP21', 'RPP30', 'RPS10-NUDT3', 'RPS13', 'RPS15', 'RPS15A',
+    'RPS18', 'RPS19', 'RPS24', 'RPS27A', 'RPS3', 'RPS6', 'RPS7', 'RPS9', 'RPUSD3', 'RRM2', 'RRS1', 'RSL1D1',
+    'RTEL1', 'RTRAF', 'RTTN', 'SAP130', 'SARS2', 'SART1', 'SART3', 'SCD', 'SCFD1', 'SDHAF2', 'SDHC', 'SEC16A',
+    'SEC61A1', 'SEC61G', 'SEH1L', 'SEM1', 'SEPHS2', 'SEPSECS', 'SETX', 'SF3A2', 'SF3B2', 'SF3B3', 'SF3B5', 'SFPQ',
+    'SHC1', 'SHQ1', 'SIRT7', 'SKA1', 'SKA3', 'SLC1A5', 'SLC25A10', 'SLC25A3', 'SLC35G2', 'SLC39A10', 'SLC39A9',
+    'SLC4A5', 'SLC7A5', 'SLC7A6OS', 'SLC9B1', 'SLU7', 'SMARCB1', 'SMC4', 'SMG5', 'SMG7', 'SMN2', 'SNAPC3', 'SNAPC5',
+    'SNRNP200', 'SNRNP25', 'SNRNP40', 'SNRPC', 'SNRPE', 'SNRPF', 'SNRPG', 'SNX15', 'SON', 'SP1', 'SP2', 'SPATA5L1',
+    'SPCS3', 'SPEN', 'SPG7', 'SPRTN', 'SRA1', 'SRBD1', 'SRF', 'SRP54', 'SRP68', 'SRP72', 'SRP9', 'SRPRB', 'SRRM1',
+    'SRRM2', 'SRSF10', 'SRSF11', 'SRSF6', 'SRSF7', 'SS18L2', 'SSBP1', 'SSBP3', 'SSU72', 'STAG2', 'STARD7', 'STAT5A',
+    'STAT5B', 'STIL', 'STXBP4', 'SUGP1', 'SUGT1', 'SUPT5H', 'SUPT6H', 'SUPV3L1', 'SURF6', 'SYNGR3', 'TACC3',
+    'TADA1', 'TADA2A', 'TAF10', 'TAF11', 'TAF13', 'TAF1C', 'TAF1D', 'TAF2', 'TAF3', 'TAF7', 'TAMM41', 'TARDBP',
+    'TARS2', 'TBC1D28', 'TBCC', 'TBCE', 'TBPL1', 'TBX1', 'TCERG1', 'TCOF1', 'TEAD3', 'TEX10', 'TFAM', 'TFB2M',
+    'TFDP1', 'THAP1', 'THAP11', 'THOC7', 'TIGD1', 'TIMM10', 'TIMM13', 'TIMM23B', 'TIMM9', 'TM7SF2', 'TMED10',
+    'TMED2', 'TMEM214', 'TMEM242', 'TMEM258', 'TMX2', 'TOE1', 'TOMM20', 'TOP1', 'TOP3A', 'TOX4', 'TP53I13', 'TPRKB',
+    'TPT1', 'TPX2', 'TRAPPC11', 'TRAPPC5', 'TREX2', 'TRMT10C', 'TRMT112', 'TRMT6', 'TRNT1', 'TRPM7', 'TSEN2',
+    'TSEN34', 'TSR1', 'TSR2', 'TTC4', 'TTI1', 'TTK', 'TUBA1B', 'TUBB', 'TUBD1', 'TUBE1', 'TUBG1', 'TULP1', 'TUT1',
+    'TVP23C', 'TWF1', 'UBA2', 'UBA5', 'UBA52', 'UBE2H', 'UBE2L3', 'UBE2M', 'UBL5', 'UBR5', 'UBTF', 'UFL1', 'UHRF1',
+    'UNC45A', 'UQCRB', 'UQCRC1', 'URB1', 'URI1', 'UROD', 'USF2', 'USP14', 'USP39', 'USP5', 'USP7', 'USP9X', 'UTP20',
+    'UXS1', 'VARS', 'VEZT', 'VPS18', 'VPS35', 'VPS37A', 'VPS37C', 'VPS54', 'WAC', 'WBP1L', 'WDR1', 'WDR12', 'WDR18',
+    'WDR25', 'WDR3', 'WDR4', 'WDR54', 'WDR70', 'WDR83OS', 'WTAP', 'XPO5', 'YEATS2', 'YEATS4', 'YJEFN3', 'ZBTB17',
+    'ZC3H3', 'ZDHHC7', 'ZFR', 'ZMAT2', 'ZNF133', 'ZNF207', 'ZNF236', 'ZNF284', 'ZNF292', 'ZNF492', 'ZNF506',
+    'ZNF559', 'ZNF674', 'ZNF687', 'ZNF706', 'ZNF718', 'ZNHIT3', 'ZRSR2'
+]
+# fmt: on

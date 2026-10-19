@@ -16,15 +16,19 @@ them in its `__all__`), plus `show`. The modules, from the inputs to the final f
 - `fast`: FAST mode's small inputs, read from the public files by byte range.
 """
 
-from . import combiner, constants, generator, inputs, levels, stage1
+from . import combiner, constants, fast, generator, harness, inputs, levels, phase, rebuild, stage1
 from .combiner import *
 from .constants import *
+from .fast import *
 from .generator import *
+from .harness import *
 from .inputs import *
 from .levels import *
+from .phase import *
+from .rebuild import *
 from .stage1 import *
 
-_MODULES = (inputs, constants, levels, combiner, generator, stage1,)
+_MODULES = (inputs, constants, levels, combiner, generator, stage1, phase, harness, rebuild, fast,)
 __all__ = [name for module in _MODULES for name in module.__all__] + ["show"]
 
 

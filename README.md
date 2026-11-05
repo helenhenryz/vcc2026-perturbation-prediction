@@ -27,7 +27,7 @@ number as that run computed them.
 | path | what it is |
 |---|---|
 | `notebook.ipynb` | the story, executed, with every figure |
-| `vccpipe/` | the pipeline, in eleven modules (`inputs`, `stage1`, `generator`, `phase`, `harness`, ...) |
+| `vccpipe/` | the pipeline and the notebook's figures, in thirteen modules (`inputs`, `stage1`, `generator`, `phase`, `harness`, `plots`, ...) |
 | `tests/` | fast unit tests on toy data: no downloads, no GPU |
 | `pyproject.toml` | the package, its pinned dependencies and the lint settings |
 | `.github/workflows/ci.yml` | lint (ruff) and tests (pytest) on every push |
@@ -54,7 +54,9 @@ number as that run computed them.
 
 ## Tests
 `pip install -e ".[dev]"`, then `ruff check . && ruff format --check . && pytest`. The tests build toy data in memory
-and run in well under a minute on a CPU.
+and run in well under a minute on a CPU. The notebook's code is formatted for reading at 100 columns
+(`ruff format --check --line-length 100 notebook.ipynb`), and a test checks that no two of its sections assign the
+same name.
 
 ## Data and licences
 No data is in this repository. The notebook downloads each dataset from its public source under that source's terms,

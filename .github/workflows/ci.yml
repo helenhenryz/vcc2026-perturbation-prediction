@@ -21,5 +21,7 @@ jobs:
         run: ruff check .
       - name: Check formatting
         run: ruff format --check .
+      - name: Check the notebook's formatting (100 columns, for reading)
+        run: ruff format --check --line-length 100 notebook.ipynb
       - name: Unit tests
         run: pytest -q

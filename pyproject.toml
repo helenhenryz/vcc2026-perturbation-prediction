@@ -24,7 +24,7 @@ dependencies = [
 notebook = ["cell-eval2[gpudge]==0.16.0", "vcc-cli==0.3.0", "scanpy==1.12.4", "ipykernel", "jupyterlab"]
 # The appendix's rebuild of the reference tables (reads R's .rds files).
 rebuild = ["rdata==1.1.0"]
-dev = ["pytest==9.1.1", "ruff==0.16.9"]
+dev = ["pytest==9.1.1", "ruff==0.16.9", "jinja2==3.1.6"]  # jinja2: pandas' table styling, tested in test_plots
 
 [build-system]
 requires = ["hatchling>=1.27"]
@@ -36,6 +36,10 @@ packages = ["vccpipe"]
 [tool.ruff]
 line-length = 120
 target-version = "py312"
+
+[tool.ruff.format]
+# The notebook is formatted for reading, at 100 columns (`ruff format --line-length 100 notebook.ipynb`); CI checks it.
+exclude = ["notebook.ipynb"]
 
 [tool.ruff.lint]
 extend-select = ["I"]  # ruff's default rules, plus import sorting

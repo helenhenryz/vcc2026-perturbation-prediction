@@ -59,6 +59,7 @@ __all__ = [
     "read_phase",
     "scorer_calls",
     "source_pcs",
+    "vcc_prep",
 ]
 
 # ---- the sources, in the order every consensus sums them -------------------------------------------------
@@ -647,3 +648,14 @@ def build_phase(
 
     with blas_threads(THREADS["build"]):
         return emit_phase(phase_dir, mfn, out, seed=seed, keep_parts=keep_parts, log=log)
+
+
+def vcc_prep(h5ad: Path, phase_dir: Path, contexts: list, out: Path, vcc: str = "vcc") -> str:
+    """Check a prediction against the challenge's gene and knockdown lists and pack it, with the challenge's CLI
+    (`vcc prep`). Returns the CLI's standard output; raises if it fails. The packed file's bytes depend on the
+    process umask (its members carry their file mode), so the caller sets it first."""
+    import subprocess
+
+    lists = ["-g", str(Path(phase_dir) / "gene_names.csv"), "--perts", str(Path(phase_dir) / "pert_counts.csv")]
+    cmd = [vcc, "prep", str(h5ad), *lists, "--contexts", ",".join(contexts), "-o", str(out)]
+    return subprocess.run(cmd, check=True, capture_output=True, text=True).stdout

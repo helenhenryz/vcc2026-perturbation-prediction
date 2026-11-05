@@ -19,6 +19,7 @@ __all__ = [
     "fold_phase",
     "run_fold",
     "score_fold",
+    "score_toy_screen",
     "waterfall_arms",
 ]
 
@@ -269,3 +270,30 @@ def run_fold(
             }
             f.write_text(json.dumps(meta, indent=1))
     return {a: out[a] for a in arms}
+
+
+def score_toy_screen(real_h5ad: Path, predictions: dict, work: Path) -> dict:
+    """Score toy predictions with the official scorer, as section 2 does: the scorer's own baseline and bundle from
+    the real data, then one run and one score per prediction. Returns {name: {measure: score}} on the
+    challenge's scale (0 = the control-mean baseline, 1 = a split-half replicate of the real data).
+
+    `predictions`: {name: AnnData}, each written to `work`/pred_<i>.h5ad; every log lands in `work` too."""
+    import polars as pl
+
+    work = Path(work)
+    flags = ["--preset", "vcc2026", "--pert-col", "target_gene", "--control", "non-targeting"]
+    baseline = ["baseline", "-ar", str(real_h5ad), "-o", str(work / "baseline")]
+    cell_eval([*baseline, "--save-pred", str(work / "baseline_pred.h5ad"), *flags], work / "baseline.log")
+    bundle = ["prep-real-bundle", "--real", str(real_h5ad), "--baseline", str(work / "baseline_pred.h5ad")]
+    cell_eval([*bundle, "-o", str(work / "bundle"), *flags], work / "bundle.log")
+    scores = {}
+    for i, (name, cells) in enumerate(predictions.items()):
+        pred, run_dir, scored = work / f"pred_{i}.h5ad", work / f"run_{i}", work / f"scored_{i}.csv"
+        cells.write_h5ad(pred)
+        cell_eval(["run", "-ap", str(pred), "-ar", str(real_h5ad), "-o", str(run_dir), *flags], work / f"run_{i}.log")
+        inputs = ["--user-agg", str(run_dir / "agg_results.csv"), "--real-bundle", str(work / "bundle")]
+        cell_eval(["score", *inputs, "-o", str(scored)], work / f"score_{i}.log")
+        df = pl.read_csv(scored)
+        v = dict(zip(df["metric"].to_list(), df["from_replicate"].to_list(), strict=True))
+        scores[name] = {k: float(v[m]) for k, m in SCORER_METRICS.items()}
+    return scores

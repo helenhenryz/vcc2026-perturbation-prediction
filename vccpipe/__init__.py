@@ -12,11 +12,27 @@ them in its `__all__`), plus `show`. The modules, from the inputs to the final f
 - `phase`: the entry points: read the challenge's input, prepare the references, run the probe, build the file.
 - `harness`: a training line held out like the challenge and scored by the official scorer.
 - `figures`: the palette and the helpers the figures share.
+- `labels`: display names and lookup tables for the notebook's tables and figures.
+- `plots`: the notebook's figures, one function per figure.
 - `rebuild`: rebuilding the reference tables from the public downloads (the notebook's appendix).
 - `fast`: FAST mode's small inputs, read from the public files by byte range.
 """
 
-from . import combiner, constants, fast, figures, generator, harness, inputs, levels, phase, rebuild, stage1
+from . import (
+    combiner,
+    constants,
+    fast,
+    figures,
+    generator,
+    harness,
+    inputs,
+    labels,
+    levels,
+    phase,
+    plots,
+    rebuild,
+    stage1,
+)
 from .combiner import *
 from .constants import *
 from .fast import *
@@ -24,12 +40,28 @@ from .figures import *
 from .generator import *
 from .harness import *
 from .inputs import *
+from .labels import *
 from .levels import *
 from .phase import *
+from .plots import *
 from .rebuild import *
 from .stage1 import *
 
-_MODULES = (inputs, constants, levels, combiner, generator, stage1, phase, harness, figures, rebuild, fast)
+_MODULES = (
+    inputs,
+    constants,
+    levels,
+    combiner,
+    generator,
+    stage1,
+    phase,
+    harness,
+    figures,
+    labels,
+    plots,
+    rebuild,
+    fast,
+)
 __all__ = [name for module in _MODULES for name in module.__all__] + ["show"]
 
 
